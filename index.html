@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS - Stark Industries</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#050b18;color:#e8faff;
+ font-family:Arial,sans-serif;text-align:center;
+ min-height:100vh;padding:25px 16px;
+}
+h2{color:#36d9ff;letter-spacing:5px;margin-top:35px}
+.brand{color:#7898ad;letter-spacing:3px;font-size:12px}
+.arc{
+ width:190px;height:190px;border-radius:50%;
+ border:3px solid #19cfff;margin:35px auto;
+ display:flex;align-items:center;justify-content:center;
+ box-shadow:0 0 20px #00cfff, inset 0 0 25px #00cfff;
+ animation:glow 2s infinite alternate;
+}
+.arc span{font-size:55px;color:#5ceaff}
+@keyframes glow{to{box-shadow:0 0 40px #00cfff,inset 0 0 35px #00cfff}}
+#status{color:#65eaff;margin:20px}
+input{
+ width:100%;padding:16px;border-radius:12px;
+ background:#101e30;border:1px solid #168bb0;
+ color:white;font-size:16px;
+}
+button{
+ padding:14px 20px;margin:10px 4px;border:0;
+ border-radius:12px;background:#087eaa;color:white;
+ font-size:16px;font-weight:bold;
+}
+#reply{
+ margin-top:22px;padding:18px;background:#101e30;
+ border:1px solid #126b89;border-radius:12px;
+ min-height:65px;line-height:1.5;
+}
+small{color:#718da4}
+</style>
+</head>
+<body>
+<div class="brand">STARK INDUSTRIES PRESENTS</div>
+<h2>J.A.R.V.I.S.</h2>
+<div class="arc"><span>AI</span></div>
+<div id="status">SYSTEM ONLINE</div>
+
+<input id="question" placeholder="Ask me anything...">
+<button onclick="send()">SEND</button>
+<button onclick="listen()">🎙️ SPEAK</button>
+
+<div id="reply">Hello! I am JARVIS. How can I help you?</div>
+<br><small>PERSONAL AI ASSISTANT</small>
+
+<script>
+const statusBox=document.getElementById("status");
+const reply=document.getElementById("reply");
+const question=document.getElementById("question");
+
+function speak(text){
+ if("speechSynthesis" in window){
+  speechSynthesis.cancel();
+  let msg=new SpeechSynthesisUtterance(text);
+  msg.lang="hi-IN";
+  speechSynthesis.speak(msg);
+ }
+}
+
+function send(){
+ let q=question.value.trim();
+ if(!q)return;
+ let answer="मैं अभी डेमो मोड में हूँ। मेरा AI दिमाग अभी कनेक्ट नहीं हुआ है।";
+ let s=q.toLowerCase();
+
+ if(s.includes("hello")||s.includes("नमस्ते"))
+ answer="Hello Sir! JARVIS आपके लिए तैयार है।";
+ else if(s.includes("time")||s.includes("समय"))
+ answer="अभी समय है "+new Date().toLocaleTimeString("hi-IN");
+ else if(s.includes("date")||s.includes("तारीख"))
+ answer="आज की तारीख है "+new Date().toLocaleDateString("hi-IN");
+ else if(s.includes("your name")||s.includes("नाम"))
+ answer="मेरा नाम JARVIS है।";
+
+ reply.innerText=answer;
+ speak(answer);
+}
+
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+  statusBox.innerText="VOICE NOT SUPPORTED";
+  reply.innerText="Chrome में voice recognition उपलब्ध नहीं है।";
+  return;
+ }
+ const rec=new SR();
+ rec.lang="hi-IN";
+ rec.onstart=()=>statusBox.innerText="LISTENING...";
+ rec.onresult=e=>{
+  question.value=e.results[0][0].transcript;
+  statusBox.innerText="PROCESSING...";
+  send();
+ };
+ rec.onerror=()=>statusBox.innerText="VOICE ERROR";
+ rec.onend=()=>statusBox.innerText="SYSTEM ONLINE";
+ rec.start();
+}
+</script>
+</body>
+</html>
